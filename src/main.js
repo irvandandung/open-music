@@ -1,5 +1,5 @@
 const Hapi = require('@hapi/hapi');
-const songs = require('./api/songs');
+const songs = require('./api/songs/index.songs');
 const SongsService = require('./service/inMemory/SongsService');
 
 const init = async () => {
