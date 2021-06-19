@@ -1,12 +1,14 @@
+require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const songs = require('./api/songs/index.songs');
-const SongsService = require('./service/inMemory/SongsService');
+const SongsService = require('./service/postgres/SongService.postgres');
+const SongsValidator = require('./validator/songs');
 
 const init = async () => {
   const songsService = new SongsService();
   const server = Hapi.Server({
-    port: 1000,
-    host: 'localhost',
+    port: process.env.PORT,
+    host: process.env.HOST,
     routes: {
       cors: {
         origin: ['*'],
@@ -18,6 +20,7 @@ const init = async () => {
     plugin: songs,
     options: {
       service: songsService,
+      validator: SongsValidator,
     },
   });
 
