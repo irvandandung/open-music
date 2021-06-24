@@ -65,13 +65,19 @@ const init = async () => {
         status: 'error',
         message: 'Maaf, terjadi kegagalan pada server kami.',
       });
+      responseError.code(500);
       if (response instanceof ClientError) {
         responseError = h.response({
           status: 'fail',
           message: response.message,
         });
+        responseError.code(response.statusCode);
       }
-      responseError.code(response.statusCode);
+
+      if (response.output) {
+        return response;
+      }
+
       return responseError;
     }
 
