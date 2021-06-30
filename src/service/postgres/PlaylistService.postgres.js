@@ -6,8 +6,9 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistService {
-  constructor() {
+  constructor(collaborationsService) {
     this._pool = new Pool();
+    this._collaborationsService = collaborationsService;
   }
 
   async addPlaylist(data) {
@@ -30,6 +31,15 @@ class PlaylistService {
     const query = {
       text: 'SELECT a.id, a.name, b.username FROM playlists a LEFT JOIN users b ON a.owner = b.id WHERE a.owner = $1',
       values: [owner],
+    };
+    const result = await this._pool.query(query);
+    return result.rows;
+  }
+
+  async getPlaylistsByCollaboration(userId) {
+    const query = {
+      text: 'SELECT b.id, b.name, c.username FROM collaborations a INNER JOIN playlists b ON a.playlist_id = b.id INNER JOIN users c ON b.owner = c.id WHERE a.user_id = $1',
+      values: [userId],
     };
     const result = await this._pool.query(query);
     return result.rows;
@@ -80,7 +90,24 @@ class PlaylistService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new NotFoundError('Lagu di dalam playlist gagal dihapus. Id tidak ditemukan');
+      throw new NotFoundError(
+        'Lagu di dalam playlist gagal dihapus. Id tidak ditemukan',
+      );
+    }
+  }
+
+  async verifyPlaylistAccess(playlistId, userId) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId);
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw e;
+      }
+      try {
+        await this._collaborationsService.verifyCollaborator(playlistId, userId);
+      } catch (e2) {
+        throw new AuthorizationError(e2.message);
+      }
     }
   }
 
