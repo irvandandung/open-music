@@ -7,6 +7,10 @@ const ClientError = require('./exceptions/ClientError');
 const SongsService = require('./service/postgres/SongService.postgres');
 const SongsValidator = require('./validator/songs');
 const songs = require('./api/songs/index.songs');
+// Playlist
+const PlaylistsService = require('./service/postgres/PlaylistService.postgres');
+const PlaylistsValidator = require('./validator/playlists');
+const playlists = require('./api/playlists/index.playlists');
 // User
 const UsersService = require('./service/postgres/UserService.postgres');
 const UsersValidator = require('./validator/users');
@@ -21,6 +25,7 @@ const init = async () => {
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authsService = new AuthsService();
+  const playlistsService = new PlaylistsService();
 
   const server = Hapi.Server({
     port: process.env.PORT,
@@ -58,26 +63,12 @@ const init = async () => {
 
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
-
-    if (response instanceof Error) {
-      // console.log(response);
-      let responseError = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.',
+    if (response instanceof ClientError) {
+      const responseError = h.response({
+        status: 'fail',
+        message: response.message,
       });
-      responseError.code(500);
-      if (response instanceof ClientError) {
-        responseError = h.response({
-          status: 'fail',
-          message: response.message,
-        });
-        responseError.code(response.statusCode);
-      }
-
-      if (response.output) {
-        return response;
-      }
-
+      responseError.code(response.statusCode);
       return responseError;
     }
 
@@ -90,6 +81,13 @@ const init = async () => {
       options: {
         service: songsService,
         validator: SongsValidator,
+      },
+    },
+    {
+      plugin: playlists,
+      options: {
+        service: playlistsService,
+        validator: PlaylistsValidator,
       },
     },
     {
