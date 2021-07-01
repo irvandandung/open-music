@@ -1,6 +1,5 @@
 const ClientError = require('../../exceptions/ClientError');
 
-/* eslint-disable no-underscore-dangle */
 class PlaylistsHandler {
   constructor(service, validator) {
     this._service = service;

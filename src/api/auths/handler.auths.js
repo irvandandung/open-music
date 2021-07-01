@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 class AuthsHandler {
   constructor(authsService, usersService, tokenManager, validator) {
     this._authsService = authsService;
