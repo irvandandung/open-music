@@ -1,7 +1,7 @@
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
-/* eslint-disable no-underscore-dangle */
+
 class SongsService {
   constructor() {
     this._songs = [];
