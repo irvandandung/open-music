@@ -80,7 +80,7 @@ const init = async () => {
       responseError.code(response.statusCode);
       return responseError;
     }
-
+    console.log(response);
     return response.continue || response;
   });
 

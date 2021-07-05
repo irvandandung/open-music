@@ -11,9 +11,10 @@ class ExportsHandler {
     const message = {
       userId: request.auth.credentials.id,
       targetEmail: request.payload.targetEmail,
+      playlistId: request.params.playlistId,
     };
 
-    await this._service.sendMessage('export:notes', JSON.stringify(message));
+    await this._service.sendMessage('export:playlists', JSON.stringify(message));
 
     const response = h.response({
       status: 'success',
