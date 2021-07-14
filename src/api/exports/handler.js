@@ -13,7 +13,6 @@ class ExportsHandler {
     const { id: owner } = request.auth.credentials;
     await this._playlistsService.verifyPlaylistAccess(playlistId, owner);
     const message = {
-      userId: owner,
       targetEmail,
       playlistId,
     };
